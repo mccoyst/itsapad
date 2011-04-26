@@ -98,7 +98,7 @@ var curid int
 func init() {
 	log.Println("Starting up")
 	for _, tmpl := range []string{"paste", "view"} {
-		templates[tmpl] = template.MustParseFile(tmpl+".html", nil)
+		templates[tmpl] = template.MustParseFile("tmplt/"+tmpl+".html", nil)
 	}
 	os.Mkdir("pastes", 0755)
 
