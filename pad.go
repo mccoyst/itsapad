@@ -11,8 +11,8 @@ import (
 const lenPath = len("/view/")
 
 type Page struct {
-	Id string
-	Body  []byte
+	Id   string
+	Body []byte
 }
 
 func (p *Page) save() os.Error {
@@ -45,7 +45,7 @@ func nextid() string {
 	return "42"
 }
 
-func makeHandler(fn func (http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		title := r.URL.Path[lenPath:]
 		if !titleValidator.MatchString(title) {
@@ -76,7 +76,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, p *Page){
+func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	err := templates[tmpl].Execute(w, p)
 	if err != nil {
 		http.Error(w, err.String(), http.StatusInternalServerError)
