@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"regexp"
-	"sort"
 	"strconv"
+	"strings"
 	"template"
 )
 
@@ -44,9 +44,43 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "paste", p)
 }
 
+var idchan = make(chan int)
+var servchan = make(chan int)
+
+func idsrv() {
+	for {
+		<-servchan
+		id := readNextId()
+		writeNextId(id+1)
+		idchan <- id
+	}
+}
+
+func readNextId() int {
+	ids, err := ioutil.ReadFile("pastes/next")
+	if err != nil {
+		panic(err)
+	}
+	id, err := strconv.Atoi(strings.TrimSpace(string(ids)))
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
+func writeNextId(id int) {
+	ids := strconv.Itoa(id)
+	bytes := make([]byte, len(ids))
+	copy(bytes, ids)
+	err := ioutil.WriteFile("pastes/next", bytes, 0600)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func nextid() string {
-	nxt := curid
-	curid++
+	servchan <- 1
+	nxt := <-idchan
 	return strconv.Itoa(nxt)
 }
 
@@ -102,36 +136,8 @@ func init() {
 	}
 	os.Mkdir("pastes", 0755)
 
-	curid = getlastid() + 1
+	go idsrv()
 	log.Println("Ready to serve")
-}
-
-func getlastid() int {
-	p, err := os.Open("pastes")
-	if err != nil {
-		panic(err)
-	}
-	defer p.Close()
-
-	names, err := p.Readdirnames(-1)
-	if err != nil {
-		panic(err)
-	}
-
-	nc := len(names)
-	if nc == 0 {
-		return 0
-	}
-
-	ids := make([]int, nc)
-	for i := 0; i < nc; i++ {
-		ids[i], err = strconv.Atoi(names[i])
-		if err != nil {
-			panic(err)
-		}
-	}
-	sort.SortInts(ids)
-	return ids[nc-1]
 }
 
 var titleValidator = regexp.MustCompile("^[0-9]+$")
