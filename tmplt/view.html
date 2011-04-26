@@ -1,11 +1,8 @@
 <html>
 <head>
 <title>{Id}</title>
-<script type="text/javascript" src="/js/shCore.js"></script>
-<script type="text/javascript" src="/js/brushes/shBrushCpp.js"></script>
-<script type="text/javascript" src="/js/brushes/shBrushJScript.js"></script>
-<link href="/css/shCore.css" rel="stylesheet" type="text/css" />
-<link href="/css/shThemeDefault.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/js/highlight.min.js"></script>
+<link rel="stylesheet" href="/css/default.min.css">
 <style type="text/css">
 pre{.meta-left}
 	background-color: #f0f0f0;
@@ -15,9 +12,7 @@ pre{.meta-left}
 </head>
 <body>
 <h1>{Id}</h1>
-<pre class="brush: cpp">{Body|html}</pre>
-<script type="text/javascript">
-  SyntaxHighlighter.all()
-</script>
+<pre><code>{Body|html}</code></pre>
+<script>hljs.initHighlightingOnLoad();</script>
 </body>
 </html>
