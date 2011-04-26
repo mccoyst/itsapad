@@ -35,12 +35,12 @@ func loadPage(title string) (*Page, os.Error) {
 func main() {
 	http.HandleFunc("/", pasteHandler)
 	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
+	http.HandleFunc("/save/", saveHandler)
 	http.ListenAndServe(":8080", nil)
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
-	p := &Page{Id: nextid(), Body: make([]byte, 0)}
+	p := &Page{Id: "0", Body: make([]byte, 0)}
 	renderTemplate(w, "paste", p)
 }
 
@@ -70,16 +70,18 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
 	renderTemplate(w, "view", p)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
+func saveHandler(w http.ResponseWriter, r *http.Request) {
 	body := r.FormValue("body")
-	p := &Page{Id: title, Body: []byte(body)}
+	id := nextid()
+	p := &Page{Id: id, Body: []byte(body)}
 	err := p.save()
 	if err != nil {
+		log.Printf("Error saving paste %s\n", id)
 		http.Error(w, err.String(), http.StatusInternalServerError)
 		return
 	}
-	log.Printf("Saving paste %s\n", title)
-	http.Redirect(w, r, "/view/"+title, http.StatusFound)
+	log.Printf("Saving paste %s\n", id)
+	http.Redirect(w, r, "/view/"+id, http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
