@@ -90,6 +90,7 @@ func init() {
 	for _, tmpl := range []string{"paste", "view"} {
 		templates[tmpl] = template.MustParseFile(tmpl+".html", nil)
 	}
+	os.Mkdir("pastes", 0755)
 }
 
 var titleValidator = regexp.MustCompile("^[0-9]+$")
