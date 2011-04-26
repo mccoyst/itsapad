@@ -3,8 +3,11 @@ package main
 import (
 	"http"
 	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
+	"sort"
+	"strconv"
 	"template"
 )
 
@@ -16,12 +19,12 @@ type Page struct {
 }
 
 func (p *Page) save() os.Error {
-	filename := "pastes/" + p.Id + ".txt"
+	filename := "pastes/" + p.Id
 	return ioutil.WriteFile(filename, p.Body, 0600)
 }
 
 func loadPage(title string) (*Page, os.Error) {
-	filename := "pastes/" + title + ".txt"
+	filename := "pastes/" + title
 	body, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -42,7 +45,9 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func nextid() string {
-	return "42"
+	nxt := curid
+	curid++
+	return strconv.Itoa(nxt)
 }
 
 func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
@@ -73,6 +78,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 		http.Error(w, err.String(), http.StatusInternalServerError)
 		return
 	}
+	log.Printf("Saving paste %s\n", title)
 	http.Redirect(w, r, "/view/"+title, http.StatusFound)
 }
 
@@ -85,12 +91,43 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 }
 
 var templates = make(map[string]*template.Template)
+var curid int
 
 func init() {
 	for _, tmpl := range []string{"paste", "view"} {
 		templates[tmpl] = template.MustParseFile(tmpl+".html", nil)
 	}
 	os.Mkdir("pastes", 0755)
+
+	curid = getlastid() + 1
+}
+
+func getlastid() int {
+	p, err := os.Open("pastes")
+	if err != nil {
+		panic(err)
+	}
+	defer p.Close()
+
+	names, err := p.Readdirnames(-1)
+	if err != nil {
+		panic(err)
+	}
+
+	nc := len(names)
+	if nc == 0 {
+		return 0
+	}
+
+	ids := make([]int, nc)
+	for i := 0; i < nc; i++ {
+		ids[i], err = strconv.Atoi(names[i])
+		if err != nil {
+			panic(err)
+		}
+	}
+	sort.SortInts(ids)
+	return ids[nc-1]
 }
 
 var titleValidator = regexp.MustCompile("^[0-9]+$")
