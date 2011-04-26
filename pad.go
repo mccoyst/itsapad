@@ -96,12 +96,14 @@ var templates = make(map[string]*template.Template)
 var curid int
 
 func init() {
+	log.Println("Starting up")
 	for _, tmpl := range []string{"paste", "view"} {
 		templates[tmpl] = template.MustParseFile(tmpl+".html", nil)
 	}
 	os.Mkdir("pastes", 0755)
 
 	curid = getlastid() + 1
+	log.Println("Ready to serve")
 }
 
 func getlastid() int {
