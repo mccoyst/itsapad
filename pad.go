@@ -36,20 +36,9 @@ func main() {
 	http.HandleFunc("/", pasteHandler)
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/save/", saveHandler)
-	http.HandleFunc("/js/", fileHandler)
-	http.HandleFunc("/css/", fileHandler)
+	http.Handle("/js/", http.FileServer("js/", "/js/"))
+	http.Handle("/css/", http.FileServer("css/", "/css/"))
 	http.ListenAndServe(":8080", nil)
-}
-
-func fileHandler(w http.ResponseWriter, r *http.Request) {
-	fname := r.URL.Path[1:]
-	f, err := ioutil.ReadFile(fname)
-	log.Printf("Serving %s\n", fname)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	w.Write(f)
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
