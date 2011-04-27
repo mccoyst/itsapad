@@ -64,9 +64,7 @@ func readNextId() int {
 		return 0
 	}
 	id, err := strconv.Atoi(strings.TrimSpace(string(ids)))
-	if err != nil {
-		panic(err)
-	}
+	giveUpOn(err)
 	return id
 }
 
@@ -75,9 +73,7 @@ func writeNextId(id int) {
 	bytes := make([]byte, len(ids))
 	copy(bytes, ids)
 	err := ioutil.WriteFile("pastes/next", bytes, 0600)
-	if err != nil {
-		panic(err)
-	}
+	giveUpOn(err)
 }
 
 func nextid() string {
@@ -153,9 +149,7 @@ func init() {
 
 func mtime(f string) int64 {
 	fi, err := os.Stat(f)
-	if err != nil {
-		panic(err)
-	}
+	giveUpOn(err)
 	return fi.Mtime_ns
 }
 
@@ -168,4 +162,10 @@ func getId(w http.ResponseWriter, r *http.Request) (title string, err os.Error) 
 		err = os.NewError("Invalid Page Id")
 	}
 	return
+}
+
+func giveUpOn(err os.Error) {
+	if err != nil {
+		panic(err)
+	}
 }
