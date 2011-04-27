@@ -121,6 +121,12 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
+	t := "tmplt/" + tmpl + ".html"
+	mt := mtime(t)
+	if mt > templmtimes[tmpl] {
+		templmtimes[tmpl] = mt
+		templates[tmpl] = template.MustParseFile(t, nil)
+	}
 	err := templates[tmpl].Execute(w, p)
 	if err != nil {
 		http.Error(w, err.String(), http.StatusInternalServerError)
@@ -129,17 +135,28 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 }
 
 var templates = make(map[string]*template.Template)
+var templmtimes = make(map[string]int64)
 var curid int
 
 func init() {
 	log.Println("Starting up")
 	for _, tmpl := range []string{"paste", "view"} {
-		templates[tmpl] = template.MustParseFile("tmplt/"+tmpl+".html", nil)
+		t := "tmplt/" + tmpl + ".html"
+		templmtimes[tmpl] = mtime(t)
+		templates[tmpl] = template.MustParseFile(t, nil)
 	}
 	os.Mkdir("pastes", 0755)
 
 	go idsrv()
 	log.Println("Ready to serve")
+}
+
+func mtime(f string) int64 {
+	fi, err := os.Stat(f)
+	if err != nil {
+		panic(err)
+	}
+	return fi.Mtime_ns
 }
 
 var titleValidator = regexp.MustCompile("^[0-9]+$")
