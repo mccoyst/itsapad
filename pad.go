@@ -61,7 +61,7 @@ func idsrv() {
 func readNextId() int {
 	ids, err := ioutil.ReadFile("pastes/next")
 	if err != nil {
-		panic(err)
+		return 0
 	}
 	id, err := strconv.Atoi(strings.TrimSpace(string(ids)))
 	if err != nil {
