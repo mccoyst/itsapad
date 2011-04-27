@@ -69,9 +69,7 @@ func readNextId() int {
 }
 
 func writeNextId(id int) {
-	ids := strconv.Itoa(id)
-	bytes := make([]byte, len(ids))
-	copy(bytes, ids)
+	bytes := []byte(strconv.Itoa(id))
 	err := ioutil.WriteFile("pastes/next", bytes, 0600)
 	giveUpOn(err)
 }
