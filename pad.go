@@ -53,7 +53,7 @@ func idsrv() {
 	for {
 		<-servchan
 		id := readNextId()
-		writeNextId(id+1)
+		writeNextId(id + 1)
 		idchan <- id
 	}
 }
