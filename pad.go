@@ -11,8 +11,6 @@ import (
 	"template"
 )
 
-const lenPath = len("/view/")
-
 type Page struct {
 	Id   string
 	Body []byte
@@ -34,7 +32,8 @@ func loadPage(title string) (*Page, os.Error) {
 
 func main() {
 	http.HandleFunc("/", pasteHandler)
-	http.HandleFunc("/view/", makeHandler(viewHandler))
+	http.HandleFunc("/plain/", makeHandler(viewHandler, "plain"))
+	http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
 	http.HandleFunc("/save/", saveHandler)
 	http.Handle("/js/", http.FileServer("js/", "/js/"))
 	http.Handle("/css/", http.FileServer("css/", "/css/"))
@@ -80,24 +79,24 @@ func nextid() string {
 	return strconv.Itoa(nxt)
 }
 
-func makeHandler(fn func(http.ResponseWriter, *http.Request, string)) http.HandlerFunc {
+func makeHandler(fn func(http.ResponseWriter, *http.Request, string, string), tmplt string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		title := r.URL.Path[lenPath:]
+		title := r.URL.Path[len("/"+tmplt+"/"):]
 		if !titleValidator.MatchString(title) {
 			http.NotFound(w, r)
 			return
 		}
-		fn(w, r, title)
+		fn(w, r, title, tmplt)
 	}
 }
 
-func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
+func viewHandler(w http.ResponseWriter, r *http.Request, title string, tmplt string) {
 	p, err := loadPage(title)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
-	renderTemplate(w, "view", p)
+	renderTemplate(w, tmplt, p)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +110,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Printf("Saving paste %s\n", id)
-	http.Redirect(w, r, "/view/"+id, http.StatusFound)
+	http.Redirect(w, r, "/plain/"+id, http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
@@ -134,7 +133,7 @@ var curid int
 
 func init() {
 	log.Println("Starting up")
-	for _, tmpl := range []string{"paste", "view"} {
+	for _, tmpl := range []string{"paste", "plain", "fancy"} {
 		t := "tmplt/" + tmpl + ".html"
 		templmtimes[tmpl] = mtime(t)
 		templates[tmpl] = template.MustParseFile(t, nil)
@@ -152,15 +151,6 @@ func mtime(f string) int64 {
 }
 
 var titleValidator = regexp.MustCompile("^[0-9]+$")
-
-func getId(w http.ResponseWriter, r *http.Request) (title string, err os.Error) {
-	title = r.URL.Path[lenPath:]
-	if !titleValidator.MatchString(title) {
-		http.NotFound(w, r)
-		err = os.NewError("Invalid Page Id")
-	}
-	return
-}
 
 func giveUpOn(err os.Error) {
 	if err != nil {
