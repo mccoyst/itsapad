@@ -88,12 +88,6 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	t := "tmplt/" + tmpl + ".html"
-	mt := mtime(t)
-	if mt > templmtimes[tmpl] {
-		templmtimes[tmpl] = mt
-		templates[tmpl] = template.MustParseFile(t, nil)
-	}
 	err := templates[tmpl].Execute(w, p)
 	if err != nil {
 		http.Error(w, err.String(), http.StatusInternalServerError)
@@ -102,29 +96,65 @@ func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 }
 
 var templates = make(map[string]*template.Template)
-var templmtimes = make(map[string]int64)
 
 func init() {
-	for _, tmpl := range []string{"paste", "plain", "fancy"} {
-		t := "tmplt/" + tmpl + ".html"
-		templmtimes[tmpl] = mtime(t)
-		templates[tmpl] = template.MustParseFile(t, nil)
-	}
+	templates["paste"] = template.MustParse(paste, nil)
+	templates["plain"] = template.MustParse(plain, nil)
+	templates["fancy"] = template.MustParse(fancy, nil)
 
 	http.HandleFunc("/", pasteHandler)
 	http.HandleFunc("/plain/", makeHandler(viewHandler, "plain"))
         http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
         http.HandleFunc("/save/", saveHandler)
-        http.Handle("/js/", http.FileServer("js/", "/js/"))
-        http.Handle("/css/", http.FileServer("css/", "/css/"))
-}
-
-func mtime(f string) int64 {
-	fi, err := os.Stat(f)
-	if err != nil {
-		return 0
-	}
-	return fi.Mtime_ns
 }
 
 var idValidator = regexp.MustCompile("^[0-9]+$")
+
+var paste = `
+<!doctype html>
+<html>
+<meta charset="UTF-8">
+<head><title>Paste!</title>
+</head>
+<h1>Paste to the pad, please.</h1>
+<form action="/save/" method="POST">
+<textarea name="body" rows="30" cols="80"></textarea>
+<input type="submit"/>
+</form>
+</body>
+</html>
+`
+
+var plain = `
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{Id}</title>
+<link rel="stylesheet" href="/css/plain.css"/>
+</head>
+<body>
+<h1>Paste {Id}</h1>
+<a href="/fancy/{Id}">Try to highlight this.</a>
+<pre>{Body|html}</pre>
+</body>
+</html>
+`
+
+var fancy = `
+<!doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{Id}</title>
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<link rel="stylesheet" href="/css/fancy.css">
+</head>
+<body>
+<h1>Paste {Id}</h1>
+<a href="/plain/{Id}">Disable highlighting.</a>
+<pre><code>{Body|html}</code></pre>
+<script>hljs.initHighlightingOnLoad();</script>
+</body>
+</html>
+`
