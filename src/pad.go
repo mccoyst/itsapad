@@ -12,7 +12,7 @@ import (
 )
 
 type Page struct {
-	Id int64
+	Id   int64
 	Time datastore.Time
 	Body []byte
 }
@@ -113,10 +113,10 @@ func init() {
 
 	http.HandleFunc("/", pasteHandler)
 	http.HandleFunc("/plain/", makeHandler(viewHandler, "plain"))
-        http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
-        http.HandleFunc("/save/", saveHandler)
-        http.Handle("/js/", http.FileServer("js/", "/js/"))
-        http.Handle("/css/", http.FileServer("css/", "/css/"))
+	http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
+	http.HandleFunc("/save/", saveHandler)
+	http.Handle("/js/", http.FileServer("js/", "/js/"))
+	http.Handle("/css/", http.FileServer("css/", "/css/"))
 }
 
 func mtime(f string) int64 {
