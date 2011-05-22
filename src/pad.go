@@ -45,6 +45,8 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "paste", p)
 }
 
+var idValidator = regexp.MustCompile("^[0-9]+$")
+
 func makeHandler(fn func(http.ResponseWriter, *http.Request, int64, string), tmplt string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := r.URL.Path[len("/"+tmplt+"/"):]
@@ -126,5 +128,3 @@ func mtime(f string) int64 {
 	}
 	return fi.Mtime_ns
 }
-
-var idValidator = regexp.MustCompile("^[0-9]+$")
