@@ -117,8 +117,6 @@ func init() {
 	http.HandleFunc("/plain/", makeHandler(viewHandler, "plain"))
 	http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
 	http.HandleFunc("/save/", saveHandler)
-	http.Handle("/js/", http.FileServer("js/", "/js/"))
-	http.Handle("/css/", http.FileServer("css/", "/css/"))
 }
 
 func mtime(f string) int64 {
