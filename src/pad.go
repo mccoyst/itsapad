@@ -41,7 +41,17 @@ func loadPage(r *http.Request, id int64) (*Page, os.Error) {
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
-	p := &Page{Time: 0, Body: make([]byte, 0)}
+	id := r.FormValue("id")
+	p := new(Page)
+	if len(id) > 0 {
+		ids, err := strconv.Atoi64(id)
+		if err == nil {
+			p, err = loadPage(r, ids)
+			if err != nil {
+				// Oh well, give them a blank paste
+			}
+		}
+	}
 	renderTemplate(w, "paste", p)
 }
 
