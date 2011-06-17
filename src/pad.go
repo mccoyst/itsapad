@@ -1,3 +1,6 @@
+// Copyright © 2011 Steve McCoy
+// Licensed under the MIT License. See LICENSE for details.
+
 package main
 
 import (
