@@ -65,11 +65,11 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := p.save(c)
 	if err != nil {
-		c.Logf("Error saving paste %s\n", id)
+		c.Errorf("Error saving paste %s\n", id)
 		http.Error(w, err.String(), http.StatusInternalServerError)
 		return
 	}
-	c.Logf("Saving paste %v\n", id)
+	c.Debugf("Saving paste %v\n", id)
 	http.Redirect(w, r, "/plain/"+strconv.Itoa64(id), http.StatusFound)
 }
 
