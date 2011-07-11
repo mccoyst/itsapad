@@ -29,10 +29,21 @@ func init() {
 	http.HandleFunc("/", pasteHandler)
 	http.HandleFunc("/plain/", makeHandler(viewHandler, "plain"))
 	http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
-	http.HandleFunc("/save/", saveHandler)
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" && r.URL.Path == "/" {
+		saveHandler(w, r)
+		return
+	}
+
+	isIdPath := idValidator.MatchString(r.URL.Path[1:])
+
+	if r.Method == "POST" && !isIdPath {
+		http.NotFound(w, r)
+		return
+	}
+
 	id := r.FormValue("id")
 	p := new(Page)
 	if len(id) > 0 {
