@@ -17,7 +17,7 @@ import (
 var maxPasteLen = 4096
 var templates = make(map[string]*template.Template)
 var templmtimes = make(map[string]int64)
-var idValidator = regexp.MustCompile("^[0-9]+$")
+var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
 
 func init() {
 	for _, tmpl := range []string{"paste", "plain", "fancy"} {
@@ -27,44 +27,53 @@ func init() {
 	}
 
 	http.HandleFunc("/", pasteHandler)
-	http.HandleFunc("/plain/", makeHandler(viewHandler, "plain"))
-	http.HandleFunc("/fancy/", makeHandler(viewHandler, "fancy"))
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
+	c := appengine.NewContext(r)
+	c.Debugf("path = %s", r.URL.Path)
+
 	if r.Method == "POST" && r.URL.Path == "/" {
+		c.Debugf("posting")
 		saveHandler(w, r)
 		return
 	}
 
-	isIdPath := idValidator.MatchString(r.URL.Path[1:])
+	if r.Method == "GET" && r.URL.Path == "/" {
+		renderTemplate(w, "paste", new(Page))
+		return
+	}
 
-	if r.Method == "POST" && !isIdPath {
+	parts := viewValidator.FindStringSubmatch(r.URL.Path)
+	if parts == nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	id := r.FormValue("id")
-	p := new(Page)
-	if len(id) > 0 {
-		ids, err := strconv.Atoi64(id)
-		if err == nil {
-			p, err = loadPage(r, ids)
-			if err != nil {
-				// Oh well, give them a blank paste
-			}
+	id, _ := strconv.Atoi64(parts[1])
+	view := parts[3]
+
+	if r.Method == "POST" && view == "" {
+		p, err := loadPage(r, id)
+		if err != nil {
+			p = new(Page)
+		} // Oh well
+		renderTemplate(w, "paste", p)
+		return
+	}
+
+	if r.Method == "GET" {
+		if view == "" {
+			view = "plain"
 		}
-	}
-	renderTemplate(w, "paste", p)
-}
-
-func viewHandler(w http.ResponseWriter, r *http.Request, id int64, tmplt string) {
-	p, err := loadPage(r, id)
-	if err != nil {
-		http.NotFound(w, r)
+		p, err := loadPage(r, id)
+		if err != nil || view != "plain" && view != "fancy" {
+			http.NotFound(w, r)
+			return
+		}
+		renderTemplate(w, view, p)
 		return
 	}
-	renderTemplate(w, tmplt, p)
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,23 +90,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.Debugf("Saving paste %v\n", id)
-	http.Redirect(w, r, "/plain/"+strconv.Itoa64(id), http.StatusFound)
-}
-
-func makeHandler(fn func(http.ResponseWriter, *http.Request, int64, string), tmplt string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.URL.Path[len(tmplt)+2:]
-		if !idValidator.MatchString(id) {
-			http.NotFound(w, r)
-			return
-		}
-		i, err := strconv.Atoi64(id)
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-		fn(w, r, i, tmplt)
-	}
+	http.Redirect(w, r, strconv.Itoa64(id), http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
