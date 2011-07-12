@@ -7,7 +7,6 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"http"
-	"os"
 	"regexp"
 	"strconv"
 	"template"
@@ -16,13 +15,11 @@ import (
 
 var maxPasteLen = 4096
 var templates = make(map[string]*template.Template)
-var templmtimes = make(map[string]int64)
 var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
 
 func init() {
 	for _, tmpl := range []string{"paste", "plain", "fancy"} {
 		t := "tmplt/" + tmpl + ".html"
-		templmtimes[tmpl] = mtime(t)
 		templates[tmpl] = template.MustParseFile(t, nil)
 	}
 
@@ -94,23 +91,9 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	t := "tmplt/" + tmpl + ".html"
-	mt := mtime(t)
-	if mt > templmtimes[tmpl] {
-		templmtimes[tmpl] = mt
-		templates[tmpl] = template.MustParseFile(t, nil)
-	}
 	err := templates[tmpl].Execute(w, p)
 	if err != nil {
 		http.Error(w, err.String(), http.StatusInternalServerError)
 		return
 	}
-}
-
-func mtime(f string) int64 {
-	fi, err := os.Stat(f)
-	if err != nil {
-		return 0
-	}
-	return fi.Mtime_ns
 }
