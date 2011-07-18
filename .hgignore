@@ -1,0 +1,5 @@
+syntax: glob
+padsrv
+*.6
+6.out
+pastes
