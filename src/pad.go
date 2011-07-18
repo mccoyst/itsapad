@@ -47,7 +47,12 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, _ := strconv.Atoi64(parts[1])
+	id, err := strconv.Atoi64(parts[1])
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
 	view := parts[3]
 
 	if r.Method == "POST" && view == "" {
