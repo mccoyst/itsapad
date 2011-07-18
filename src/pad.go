@@ -87,7 +87,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	id, err := p.save(c)
 	if err != nil {
-		c.Errorf("Error saving paste %s\n", id)
+		c.Errorf("Error saving paste %d\n", id)
 		http.Error(w, err.String(), http.StatusInternalServerError)
 		return
 	}
