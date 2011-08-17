@@ -3,7 +3,7 @@
 application: itsapad
 version: 2
 runtime: go
-api_version: 1
+api_version: 2
 
 handlers:
 - url: /css
