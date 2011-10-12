@@ -13,7 +13,7 @@ import (
 type Page struct {
 	Id   int64
 	Time datastore.Time
-	Body []byte
+	Body string
 }
 
 func (p *Page) save(c appengine.Context) (id int64, err os.Error) {
@@ -21,7 +21,7 @@ func (p *Page) save(c appengine.Context) (id int64, err os.Error) {
 		err = os.NewError("Paste is too large to store")
 		return
 	}
-	k, err := datastore.Put(c, datastore.NewIncompleteKey("Page"), p)
+	k, err := datastore.Put(c, datastore.NewIncompleteKey(c, "Page", nil), p)
 	if err != nil {
 		return
 	}
@@ -31,7 +31,7 @@ func (p *Page) save(c appengine.Context) (id int64, err os.Error) {
 func loadPage(r *http.Request, id int64) (*Page, os.Error) {
 	c := appengine.NewContext(r)
 	p := new(Page)
-	err := datastore.Get(c, datastore.NewKey("Page", "", id, nil), p)
+	err := datastore.Get(c, datastore.NewKey(c, "Page", "", id, nil), p)
 	if err != nil {
 		return nil, err
 	}
