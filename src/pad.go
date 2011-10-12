@@ -20,7 +20,7 @@ var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
 func init() {
 	for _, tmpl := range []string{"paste", "plain", "fancy"} {
 		t := "tmplt/" + tmpl + ".html"
-		templates[tmpl] = template.MustParseFile(t, nil)
+		templates[tmpl] = template.Must(template.ParseFile(t))
 	}
 
 	http.HandleFunc("/", pasteHandler)
@@ -83,7 +83,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	body := r.FormValue("body")
 	p := &Page{
 		Time: datastore.SecondsToTime(time.Seconds()),
-		Body: []byte(body),
+		Body: body,
 	}
 	id, err := p.save(c)
 	if err != nil {
