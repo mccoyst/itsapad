@@ -13,7 +13,7 @@ import (
 type Page struct {
 	Id   int64
 	Time datastore.Time
-	Body string
+	Body []byte
 }
 
 func (p *Page) save(c appengine.Context) (id int64, err os.Error) {

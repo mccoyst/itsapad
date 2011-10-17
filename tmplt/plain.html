@@ -13,7 +13,7 @@ Licensed under the MIT License. See LICENSE for details.
 <body>
 <h1>Paste {{.Id}}</h1>
 <a href="/{{.Id}}/fancy">Try to highlight this.</a>
-<pre id="paste">{{.Body|html}}</pre>
+<pre id="paste">{{.Body|printf "%s"|html}}</pre>
 <a href="/">Make a new paste.</a><br>
 <form id="repost" action="/{{.Id}}" method="POST">
 <input type="hidden" name="id" value="{{.Id}}"/>
