@@ -83,7 +83,7 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	body := r.FormValue("body")
 	p := &Page{
 		Time: datastore.SecondsToTime(time.Seconds()),
-		Body: body,
+		Body: []byte(body),
 	}
 	id, err := p.save(c)
 	if err != nil {
