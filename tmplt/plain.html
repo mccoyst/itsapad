@@ -12,7 +12,8 @@ Licensed under the MIT License. See LICENSE for details.
 </head>
 <body>
 <h1>Paste {{.Id}}</h1>
-<a href="/{{.Id}}/fancy">Try to highlight this.</a>
+<a href="/{{.Id}}/fancy">Try to highlight this.</a><br/>
+<a href="/{{.Id}}/raw">View this as raw text.</a>
 <pre id="paste">{{.Body|printf "%s"|html}}</pre>
 <a href="/">Make a new paste.</a><br>
 <form id="repost" action="/{{.Id}}" method="POST">
