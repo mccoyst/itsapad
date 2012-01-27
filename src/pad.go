@@ -69,10 +69,20 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			view = "plain"
 		}
 		p, err := loadPage(r, id)
-		if err != nil || view != "plain" && view != "fancy" {
+		if err != nil || view != "plain" && view != "fancy" && view != "raw" {
 			http.NotFound(w, r)
 			return
 		}
+
+		if view == "raw" {
+			w.Header().Set("Content-Type", "text/plain")
+			_, err := w.Write(p.Body)
+			if err != nil {
+				http.Error(w, err.String(), http.StatusInternalServerError)
+			}
+			return
+		}
+
 		renderTemplate(w, view, p)
 		return
 	}

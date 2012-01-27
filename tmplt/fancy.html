@@ -13,7 +13,8 @@ Licensed under the MIT License. See LICENSE for details.
 </head>
 <body>
 <h1>Paste {{.Id}}</h1>
-<a href="/{{.Id}}/plain">Disable highlighting.</a>
+<a href="/{{.Id}}/plain">Disable highlighting.</a><br/>
+<a href="/{{.Id}}/raw">View this as raw text.</a>
 <pre><code>{{.Body|printf "%s"|html}}</code></pre>
 <a href="/">Make a new paste.</a>
 <form id="repost" action="/{{.Id}}" method="POST">
