@@ -5,11 +5,10 @@ package main
 
 import (
 	"appengine"
-	"appengine/datastore"
-	"http"
+	"net/http"
 	"regexp"
 	"strconv"
-	"template"
+	"text/template"
 	"time"
 )
 
@@ -20,7 +19,7 @@ var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
 func init() {
 	for _, tmpl := range []string{"paste", "plain", "fancy"} {
 		t := "tmplt/" + tmpl + ".html"
-		templates[tmpl] = template.Must(template.ParseFile(t))
+		templates[tmpl] = template.Must(template.ParseFiles(t))
 	}
 
 	http.HandleFunc("/", pasteHandler)
@@ -47,7 +46,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi64(parts[1])
+	id, err := strconv.ParseInt(parts[1], 10, 64)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -78,7 +77,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/plain")
 			_, err := w.Write(p.Body)
 			if err != nil {
-				http.Error(w, err.String(), http.StatusInternalServerError)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
 			return
 		}
@@ -92,23 +91,23 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	c := appengine.NewContext(r)
 	body := r.FormValue("body")
 	p := &Page{
-		Time: datastore.SecondsToTime(time.Seconds()),
+		Time: time.Now(),
 		Body: []byte(body),
 	}
 	id, err := p.save(c)
 	if err != nil {
 		c.Errorf("Error saving paste %d\n", id)
-		http.Error(w, err.String(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	c.Debugf("Saving paste %v\n", id)
-	http.Redirect(w, r, strconv.Itoa64(id), http.StatusFound)
+	http.Redirect(w, r, strconv.FormatInt(id, 10), http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	err := templates[tmpl].Execute(w, p)
 	if err != nil {
-		http.Error(w, err.String(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
