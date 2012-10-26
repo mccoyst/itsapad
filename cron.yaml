@@ -1,0 +1,6 @@
+# © 2011 Steve McCoy. Available under the MIT license.
+
+cron:
+- description: clean up old pastes
+  url: /clean
+  schedule: every 24 hours

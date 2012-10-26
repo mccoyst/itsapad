@@ -1,5 +1,5 @@
-# Copyright © 2011 Steve McCoy
-#Licensed under the MIT License. See LICENSE for details.
+# © 2011 Steve McCoy. Available under the MIT license. See LICENSE for details.
+
 application: itsapad
 version: 2
 runtime: go
@@ -13,5 +13,8 @@ handlers:
 - url: /favicon.ico
   static_files: favicon.ico
   upload: favicon.ico
+- url: /clean
+  script: _go_app
+  login: admin
 - url: /.*
   script: _go_app

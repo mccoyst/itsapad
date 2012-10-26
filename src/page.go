@@ -38,3 +38,21 @@ func loadPage(r *http.Request, id int64) (*Page, error) {
 	p.Id = id
 	return p, nil
 }
+
+func deleteOldPages(c appengine.Context) error {
+	q := datastore.NewQuery("Page").
+		Filter("Time <", time.Now().Add(-30*24*time.Hour)).
+		KeysOnly()
+
+	keys, err := q.GetAll(c, nil)
+	if err != nil {
+		return err
+	}
+
+	err = datastore.DeleteMulti(c, keys)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
