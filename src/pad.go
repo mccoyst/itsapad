@@ -22,6 +22,7 @@ func init() {
 	}
 
 	http.HandleFunc("/", pasteHandler)
+	http.HandleFunc("/clean", cleaner)
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
@@ -84,6 +85,22 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, view, p)
 		return
 	}
+}
+
+func cleaner(w http.ResponseWriter, r *http.Request) {
+	if r.Header.Get("X-Appengine-Cron") != "true" {
+		http.Error(w, "Nope", http.StatusNotFound)
+		return
+	}
+
+	c := appengine.NewContext(r)
+	err := deleteOldPages(c)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write([]byte("OK"))
 }
 
 func saveHandler(w http.ResponseWriter, r *http.Request) {
