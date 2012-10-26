@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-var maxPasteLen = 32768
+var maxPasteLen = 1048576
 var templates = make(map[string]*template.Template)
 var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
 
