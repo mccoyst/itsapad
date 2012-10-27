@@ -88,7 +88,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func cleaner(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("X-Appengine-Cron") != "true" {
+	if r.Header.Get("X-AppEngine-Cron") != "true" {
 		http.Error(w, "Nope", http.StatusNotFound)
 		return
 	}
