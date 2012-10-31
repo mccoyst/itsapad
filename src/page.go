@@ -46,13 +46,26 @@ func deleteOldPages(c appengine.Context) error {
 
 	keys, err := q.GetAll(c, nil)
 	if err != nil {
+		c.Debugf("Problem with query: %v", err)
 		return err
 	}
 
-	err = datastore.DeleteMulti(c, keys)
-	if err != nil {
-		return err
+	sz := 500 // datastore delete limit
+	n := len(keys) / sz
+	for i := 0; i <= n; i++ {
+		err = datastore.DeleteMulti(c, window(keys, i*n, i*n+sz))
+		if err != nil {
+			c.Debugf("Problem with delete: %v", err)
+			return err
+		}
 	}
 
 	return nil
+}
+
+func window(keys []*datastore.Key, b, e int) []*datastore.Key {
+	if e > len(keys) {
+		e = len(keys)
+	}
+	return keys[b:e]
 }
