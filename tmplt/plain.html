@@ -1,0 +1,24 @@
+<!doctype html>
+<!--
+Copyright © 2011 Steve McCoy
+Licensed under the MIT License. See LICENSE for details.
+-->
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{.Id}}</title>
+<script type="text/javascript" src="/js/pad.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/plain.css"/>
+</head>
+<body>
+<h1>Paste {{.Id}}</h1>
+<a href="/{{.Id}}/fancy">Try to highlight this.</a><br/>
+<a href="/{{.Id}}/raw">View this as raw text.</a>
+<pre id="paste">{{.Body|printf "%s"|html}}</pre>
+<a href="/">Make a new paste.</a><br>
+<form id="repost" action="/{{.Id}}" method="POST">
+<input type="hidden" name="id" value="{{.Id}}"/>
+<a href="javascript:pad.cp()">Make a paste based on this one.</a>
+</form>
+</body>
+</html>

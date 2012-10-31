@@ -1,0 +1,26 @@
+<!doctype html>
+<!--
+Copyright © 2011 Steve McCoy
+Licensed under the MIT License. See LICENSE for details.
+-->
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{.Id}}</title>
+<script type="text/javascript" src="/js/highlight.pack.js"></script>
+<script type="text/javascript" src="/js/pad.js"></script>
+<link rel="stylesheet" type="text/css" href="/css/fancy.css">
+</head>
+<body>
+<h1>Paste {{.Id}}</h1>
+<a href="/{{.Id}}/plain">Disable highlighting.</a><br/>
+<a href="/{{.Id}}/raw">View this as raw text.</a>
+<pre><code>{{.Body|printf "%s"|html}}</code></pre>
+<a href="/">Make a new paste.</a>
+<form id="repost" action="/{{.Id}}" method="POST">
+<input type="hidden" name="id" value="{{.Id}}"/>
+<a href="javascript:pad.cp()">Make a paste based on this one.</a>
+<script>hljs.initHighlightingOnLoad();</script>
+</form>
+</body>
+</html>
