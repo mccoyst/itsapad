@@ -5,6 +5,7 @@ package main
 import (
 	"appengine"
 	"appengine/datastore"
+	"bytes"
 	"errors"
 	"net/http"
 	"time"
@@ -21,6 +22,7 @@ func (p *Page) save(c appengine.Context) (id int64, err error) {
 		err = errors.New("Paste is too large to store")
 		return
 	}
+	p.Body = bytes.Replace(p.Body, []byte{'\r'}, []byte{}, -1)
 	k, err := datastore.Put(c, datastore.NewIncompleteKey(c, "Page", nil), p)
 	if err != nil {
 		return
