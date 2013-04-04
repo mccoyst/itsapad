@@ -1,5 +1,4 @@
-// Copyright © 2011 Steve McCoy
-// Licensed under the MIT License. See LICENSE for details.
+// © 2011 Steve McCoy. Licensed under the MIT License.
 
 var pad = {
 	cp: function(){

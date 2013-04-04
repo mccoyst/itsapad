@@ -1,4 +1,4 @@
-// © 2011 Steve McCoy. Available under the MIT License. See LICENSE for details.
+// © 2011 Steve McCoy. Available under the MIT License.
 
 package main
 
