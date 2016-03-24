@@ -13,7 +13,7 @@ import (
 
 var maxPasteLen = 1048576
 var templates = make(map[string]*template.Template)
-var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
+var viewValidator = regexp.MustCompile("^/([0-9a-z]+)(/([a-z]+)?)?$")
 
 func init() {
 	for _, tmpl := range []string{"paste", "plain", "wrapped"} {
@@ -47,9 +47,13 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil {
-		http.NotFound(w, r)
-		return
+	if err != nil{
+		id, err = strconv.ParseInt(parts[1], 36, 64)
+		if err != nil {
+			c.Errorf("id = %s, err = %v", parts[1], err)
+			http.NotFound(w, r)
+			return
+		}
 	}
 
 	view := parts[3]
@@ -117,11 +121,18 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	c.Debugf("Saving paste %v\n", id)
-	http.Redirect(w, r, strconv.FormatInt(id, 10), http.StatusFound)
+	http.Redirect(w, r, strconv.FormatInt(id, 36), http.StatusFound)
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	err := templates[tmpl].Execute(w, p)
+	encPage := struct{
+		Id string
+		Body []byte
+	}{
+		Id: strconv.FormatInt(p.Id, 36),
+		Body: p.Body,
+	}
+	err := templates[tmpl].Execute(w, encPage)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
