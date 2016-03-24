@@ -11,7 +11,6 @@
 </head>
 <body>
 <h1>Paste {{.Id}}</h1>
-<a href="/{{.Id}}/fancy">Try to highlight this.</a><br/>
 <a href="/{{.Id}}/raw">View this as raw text.</a><br/>
 <a href="/{{.Id}}">View this as unwrapped text.</a>
 <p id="paste">{{.Body|printf "%s"|html}}</p>
