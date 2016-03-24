@@ -13,8 +13,8 @@
 <h1>Paste {{.Id}}</h1>
 <a href="/{{.Id}}/fancy">Try to highlight this.</a><br/>
 <a href="/{{.Id}}/raw">View this as raw text.</a><br/>
-<a href="/{{.Id}}/wrapped">View this as wrapped text.</a>
-<pre id="paste">{{.Body|printf "%s"|html}}</pre>
+<a href="/{{.Id}}">View this as unwrapped text.</a>
+<p id="paste">{{.Body|printf "%s"|html}}</p>
 <a href="/">Make a new paste.</a><br>
 <form id="repost" action="/{{.Id}}" method="POST">
 <input type="hidden" name="id" value="{{.Id}}"/>

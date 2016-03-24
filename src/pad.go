@@ -16,7 +16,7 @@ var templates = make(map[string]*template.Template)
 var viewValidator = regexp.MustCompile("^/([0-9]+)(/([a-z]+)?)?$")
 
 func init() {
-	for _, tmpl := range []string{"paste", "plain", "fancy"} {
+	for _, tmpl := range []string{"paste", "plain", "fancy", "wrapped"} {
 		t := "tmplt/" + tmpl + ".html"
 		templates[tmpl] = template.Must(template.ParseFiles(t))
 	}
@@ -68,7 +68,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 			view = "plain"
 		}
 		p, err := loadPage(r, id)
-		if err != nil || view != "plain" && view != "fancy" && view != "raw" {
+		if err != nil || view != "plain" && view != "fancy" && view != "raw" && view != "wrapped" {
 			http.NotFound(w, r)
 			return
 		}
