@@ -46,14 +46,11 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(parts[1], 10, 64)
-	if err != nil{
-		id, err = strconv.ParseInt(parts[1], 36, 64)
-		if err != nil {
-			c.Errorf("id = %s, err = %v", parts[1], err)
-			http.NotFound(w, r)
-			return
-		}
+	id, err := strconv.ParseInt(parts[1], 36, 64)
+	if err != nil {
+		c.Errorf("id = %s, err = %v", parts[1], err)
+		http.NotFound(w, r)
+		return
 	}
 
 	view := parts[3]
