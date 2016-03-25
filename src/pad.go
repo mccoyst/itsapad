@@ -4,8 +4,8 @@ package main
 
 import (
 	"appengine"
-	"net/http"
 	"math/rand"
+	"net/http"
 	"regexp"
 	"strconv"
 	"text/template"
@@ -130,13 +130,13 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
-	encPage := struct{
+	encPage := struct {
 		Icon string
-		Id string
+		Id   string
 		Body []byte
 	}{
 		Icon: icons[rand.Intn(len(icons))],
-		Id: strconv.FormatInt(p.Id, 36),
+		Id:   strconv.FormatInt(p.Id, 36),
 		Body: p.Body,
 	}
 	err := templates[tmpl].Execute(w, encPage)
