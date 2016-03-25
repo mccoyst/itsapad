@@ -5,6 +5,7 @@ package main
 import (
 	"appengine"
 	"net/http"
+	"math/rand"
 	"regexp"
 	"strconv"
 	"text/template"
@@ -15,7 +16,14 @@ var maxPasteLen = 1048576
 var templates = make(map[string]*template.Template)
 var viewValidator = regexp.MustCompile("^/([0-9a-z]+)(/([a-z]+)?)?$")
 
+var icons = []string{
+	"📋",
+	"🗒",
+}
+
 func init() {
+	rand.Seed(3)
+
 	for _, tmpl := range []string{"paste", "plain", "wrapped"} {
 		t := "tmplt/" + tmpl + ".html"
 		templates[tmpl] = template.Must(template.ParseFiles(t))
@@ -123,9 +131,11 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
 	encPage := struct{
+		Icon string
 		Id string
 		Body []byte
 	}{
+		Icon: icons[rand.Intn(len(icons))],
 		Id: strconv.FormatInt(p.Id, 36),
 		Body: p.Body,
 	}

@@ -10,7 +10,7 @@
 <link rel="stylesheet" type="text/css" href="/css/plain.css"/>
 </head>
 <body>
-<h1>Paste {{.Id}}</h1>
+<h1>{{.Icon}} {{.Id}}</h1>
 <a href="/{{.Id}}/raw">View this as raw text.</a><br/>
 <a href="/{{.Id}}/wrapped">View this as wrapped text.</a>
 <pre id="paste">{{.Body|printf "%s"|html}}</pre>

@@ -8,7 +8,7 @@
 <title>Paste!</title>
 </head>
 <body>
-<h1>Paste to the pad, please.</h1>
+<h1>Paste to the {{.Icon}}, please.</h1>
 <form action="/" method="POST">
 <textarea name="body" rows="30" cols="80">{{.Body|printf "%s"|html}}</textarea>
 <input type="submit" value="Paste">
