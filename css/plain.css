@@ -1,6 +1,11 @@
 /*
 © 2016 Steve McCoy. Licensed under the MIT License.
 */
+h1{
+	font-family: serif;
+	font-weight: normal;
+}
+
 pre{
   padding: 0.5em;
   background: #F0F0F0;
