@@ -46,10 +46,17 @@ func deleteOldPages(c appengine.Context) error {
 		Filter("Time <", time.Now().Add(-30*24*time.Hour)).
 		KeysOnly()
 
-	keys, err := q.GetAll(c, nil)
+	allKeys, err := q.GetAll(c, nil)
 	if err != nil {
 		c.Debugf("Problem with query: %v", err)
 		return err
+	}
+
+	var keys []*datastore.Key
+	for _, k := range allKeys {
+		if k.IntID() != 5725076045430784 {
+			keys = append(keys, k)
+		}
 	}
 
 	sz := 500 // datastore delete limit
