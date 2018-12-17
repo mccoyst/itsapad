@@ -3,7 +3,7 @@
 package main
 
 import (
-	"appengine"
+	"log"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -21,7 +21,7 @@ var icons = []string{
 	"🗒",
 }
 
-func init() {
+func main() {
 	rand.Seed(3)
 
 	for _, tmpl := range []string{"paste", "plain", "wrapped"} {
@@ -29,16 +29,23 @@ func init() {
 		templates[tmpl] = template.Must(template.ParseFiles(t))
 	}
 
+	http.Handle("/css/", 
+		http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))
+	http.Handle("/js/",
+		http.StripPrefix("/js/", http.FileServer(http.Dir("./js"))))
+	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request){
+		http.ServeFile(w, r, "./favicon.ico")
+	})
 	http.HandleFunc("/", pasteHandler)
-	http.HandleFunc("/clean", cleaner)
+
+	http.ListenAndServe(":9457", nil)
 }
 
 func pasteHandler(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
-	c.Debugf("path = %s", r.URL.Path)
+	log.Printf("path = %s", r.URL.Path)
 
 	if r.Method == "POST" && r.URL.Path == "/" {
-		c.Debugf("posting")
+		log.Println("posting")
 		saveHandler(w, r)
 		return
 	}
@@ -56,7 +63,7 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, err := strconv.ParseInt(parts[1], 36, 64)
 	if err != nil {
-		c.Errorf("id = %s, err = %v", parts[1], err)
+		log.Printf("id = %s, err = %v", parts[1], err)
 		http.NotFound(w, r)
 		return
 	}
@@ -96,36 +103,26 @@ func pasteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func cleaner(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("X-AppEngine-Cron") != "true" {
-		http.Error(w, "Nope", http.StatusNotFound)
-		return
-	}
-
-	c := appengine.NewContext(r)
-	err := deleteOldPages(c)
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := connectDB()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	defer db.Close()
 
-	w.Write([]byte("OK"))
-}
-
-func saveHandler(w http.ResponseWriter, r *http.Request) {
-	c := appengine.NewContext(r)
 	body := r.FormValue("body")
 	p := &Page{
 		Time: time.Now(),
 		Body: []byte(body),
 	}
-	id, err := p.save(c)
+	id, err := p.save(db)
 	if err != nil {
-		c.Errorf("Error saving paste %d\n", id)
+		log.Printf("Error saving paste %d", id)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	c.Debugf("Saving paste %v\n", id)
+	log.Printf("Saving paste %v", id)
 	http.Redirect(w, r, strconv.FormatInt(id, 36), http.StatusFound)
 }
 
