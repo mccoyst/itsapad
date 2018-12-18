@@ -29,11 +29,11 @@ func main() {
 		templates[tmpl] = template.Must(template.ParseFiles(t))
 	}
 
-	http.Handle("/css/", 
+	http.Handle("/css/",
 		http.StripPrefix("/css/", http.FileServer(http.Dir("./css"))))
 	http.Handle("/js/",
 		http.StripPrefix("/js/", http.FileServer(http.Dir("./js"))))
-	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request){
+	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./favicon.ico")
 	})
 	http.HandleFunc("/", pasteHandler)
