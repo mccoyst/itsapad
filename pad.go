@@ -1,4 +1,4 @@
-// © 2016 Steve McCoy. Available under the MIT License.
+// © 2018 Steve McCoy. Available under the MIT License.
 
 package main
 
